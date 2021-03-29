@@ -41,20 +41,20 @@ def data_labeler(a,overlap_percent=50.):
         else:
             location_temp=[]
             width_temp=[]
-            #(band_num,info_num)=np.shape(a[i])
+            print('np.shape(a[i])'+str(np.shape(a[i])))
 
             #A new frequency band appears will be labeled -1
-            label_temp=[-1]*len(a[i])
-            band_type_temp=[0]*len(a[i])
+            label_temp=[-1]*len(a[i][0])
+            band_type_temp=[0]*len(a[i][0])
             #loop throught all the bands for this time step
-            for j in range(len(a[i])):
-                location_temp.append(a[i][j][0])
-                width_temp.append(a[i][j][1])
+            for j in range(len(a[i][0])):
+                location_temp.append(a[i][0][j])
+                width_temp.append(a[i][1][j])
                 #find the label
                 #loop throught all the bands from the last time step
                 for m in range(len(b[-1][2])):
-                    current_location=a[i][j][0]
-                    current_width   =a[i][j][1]
+                    current_location=a[i][0][j]
+                    current_width   =a[i][1][j]
                     last_location   =b[-1][0][m]
                     last_width      =b[-1][1][m]
                     last_label      =b[-1][2][m]
@@ -69,7 +69,7 @@ def data_labeler(a,overlap_percent=50.):
             #start of labeling all the band type 2 and n0x 
             label_count=np.zeros(int(np.max(label_temp))+2)
 
-            print('label_temp'+str(label_temp))
+            #print('label_temp'+str(label_temp))
 
             for j in label_temp:
                 if j==-1:
@@ -78,17 +78,17 @@ def data_labeler(a,overlap_percent=50.):
                 else:
                     label_count[j]=label_count[j]+1
 
-            print('label_count: '+str(label_count))
+            #print('label_count: '+str(label_count))
             #counter for the loop
             label_counter=np.zeros(int(np.max(label_temp))+int(label_count[0])+1)
 
-            print('label_counter'+str(label_counter))
+            #print('label_counter'+str(label_counter))
 
             label_temp_copy=copy.deepcopy(label_temp)
 
             #loop through the label_list from current time step
             for j in range(len(label_temp)):
-                print('label_temp_copy'+str(label_temp_copy))
+                #print('label_temp_copy'+str(label_temp_copy))
                 #constant band
                 if label_count[label_temp[j]]==1:
                     band_type_temp[j]=0
@@ -103,9 +103,9 @@ def data_labeler(a,overlap_percent=50.):
                     else:
                         total_label=total_label+1
                         label_temp[j]=total_label
-                    print('label_temp_copy'+str(label_temp_copy))
-                    print('label_temp_copy[j]'+str(label_temp_copy[j]))
-                    print('j:'+str(j))
+                    #print('label_temp_copy'+str(label_temp_copy))
+                    #print('label_temp_copy[j]'+str(label_temp_copy[j]))
+                    #print('j:'+str(j))
                     label_counter[label_temp_copy[j]]=label_counter[label_temp_copy[j]]+1
                     
                 #A new independent frequency band appears
@@ -114,8 +114,8 @@ def data_labeler(a,overlap_percent=50.):
                     label_temp[j]=total_label
                     band_type_temp[j]=2
 
-            print('label_count:'+str(label_count))
-            print('label_counter:'+str(label_counter))
+            #print('label_count:'+str(label_count))
+            #print('label_counter:'+str(label_counter))
             #end of labeling all the band type 2 and n0x
 
         b.append([location_temp, width_temp, label_temp, band_type_temp])
