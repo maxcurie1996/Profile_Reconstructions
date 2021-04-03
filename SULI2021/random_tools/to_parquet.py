@@ -2,12 +2,13 @@ import pandas as pd
 import os
 import pyarrow
 
-
-base = '/home/jazimmerman/PycharmProjects/SULI2021/SULI2021/data/B3/parquet'
-files = os.listdir(base)
+base = os.path.dirname(os.getcwd())
+pq_dir = base + '/data/B3/parquet/'
+csv_dir = input('Directory of text files: ')
+files = os.listdir(csv_dir)
 
 for file in files:
-    df = pd.read_csv(os.path.join(base, file), delimiter=" ")
+    df = pd.read_csv(os.path.join(csv_dir, file), delimiter=" ")
     df.columns = ['time', 'amplitude']
-    print(f'/home/jazimmerman/PycharmProjects/SULI2021/SULI2021/data/B3/{file.split(".")[0]}.pq')
-    df.to_parquet(f'/home/jazimmerman/PycharmProjects/SULI2021/SULI2021/data/B3/parquet/{file.split(".")[0]}.pq', engine='pyarrow')
+    print(f'{pq_dir}{file.split(".")[0]}.pq')
+    df.to_parquet(f'{pq_dir}{file.split(".")[0]}.pq', engine='pyarrow')

@@ -2,7 +2,7 @@ import numpy as np 			#import numpy library and give it a short name as np
 import sys as sys
 import matplotlib.pyplot as plt
 
-sys.path.insert(1, '/u/mcurie/Scripts/tokaml-JeffsBranch/SULI2021/random_tools')
+sys.path.insert(1, './SULI2021/random_tools')
 from DataPrep import *
 from tools import data_labeler
 from tools import flatten_2D
@@ -14,18 +14,20 @@ from max_stat_tool import smooth_with_dev
 
 #python /u/mcurie/Scripts/tokaml-JeffsBranch/0run_freq_find.py
 #shot_dir='/p/datad2/gdong/signal_data_ELM/d3d/d3d/B3'
-shot_dir='.'
-#for current folder use '.'
+shot_dir='./'
+#for current folder use './'
 shot_no=170882
 marker_size=5	#Size of the dot marker in the plot
 bin_size=5
+blur_setting=3
+overlap_percent_setting=30.
 
 #shot = 170882 # this is the shot number you're looking at
-sh = DataPrep(shot_dir, shot_no) # this creates the DataPrep Object
-properties = sh.peak_properties()
-window_num = 1 # this is the specific window you're looking for. For a list of available window_num, do:
-#print(properties.index.get_level_values(level=0))
-
+sh = DataPrep(shot_no, shot_dir) # this creates the DataPrep Object
+properties = sh.peak_properties(blur=blur_setting)
+window_num = 0 # this is the specific window you're looking for. For a list of available window_num, do:
+#print(properties)
+print(properties.index.get_level_values(level=0))
 
 #From https://stackabuse.com/writing-to-a-file-with-pythons-print-function/
 original_stdout = sys.stdout # Save a reference to the original standard output
@@ -36,7 +38,7 @@ with open('output.txt', 'w') as f:
 		print(properties)
 	sys.stdout = original_stdout # Reset the standard output to its original value
 
-window = properties.xs(12, level=0) # This retrieves only the data for the specified window_num
+window = properties.xs(window_num, level=0) # This retrieves only the data for the specified window_num
 window['Widths'] = window['Left/Right'].apply(lambda x: [*map(lambda y: y[1]-y[0], x)]) #This adds a new column to the window dataframe containing a list of all the widths of the modes.
 
 index = np.array(window.index.get_level_values(level=0).tolist())
@@ -55,7 +57,9 @@ for i in range(len(percentages)):
 #print(percentages)
 
 
-post_label_dataset, total_band_num=data_labeler(pre_label_dataset,overlap_percent=50.)
+
+
+post_label_dataset, total_band_num=data_labeler(pre_label_dataset,overlap_percent=overlap_percent_setting)
 
 #post_label_dataset[time_index]= [list(location), list(width), list(label), list(band_type)]
 '''
@@ -77,7 +81,7 @@ for i in (np.array(range(total_band_num))+1):
 		for k in range(len(post_label_dataset[j][2])):
 			#if post_label_dataset = the current band loop index
 			if post_label_dataset[j][2][k]==i:
-				band_temp.append([index[j], 				#time step
+				band_temp.append([int(index[j]), 				#time step
 								percentages[j], 			#percent of the ELM
 								post_label_dataset[j][0][k],#Frequency(location of peak) 
 								post_label_dataset[j][1][k],#band width(width of peak) 
@@ -97,12 +101,12 @@ with open('band_labels.txt', 'w') as f:
 	#From: https://stackoverflow.com/questions/19124601/pretty-print-an-entire-pandas-series-dataframe
 	for i in range(total_band_num):
 		print('********'+str(i)+'******')
+		print('band_temp[band_num]=[time_index,percent of the ELM, Frequency, width, band_type]')
 		print('***************')
 		print('***************')
 		print('***************')
 		print('***************')
-		print('***************')
-		print(str(band_labels))
+		print(str(band_labels[i]))
 	sys.stdout = original_stdout # Reset the standard output to its original value
 
 
@@ -182,6 +186,24 @@ plt.show()
 #band_labels=[band_label_number,time,info]
 #band_temp[band_num]=[time_index,percent of the ELM, Frequency, width, band_type]
 
+
+plt.clf()
+plt.plot()
+for i in range(total_band_num):
+	if len(np.shape(band_labels[i]))==2:
+		#plt.errorbar(band_labels[i][:,0],band_labels[i][:,2],\
+		#	yerr=band_labels[i][:,3],marker='o',ms=marker_size,linestyle='none')   
+
+		plt.plot(band_labels[i][:,0],band_labels[i][:,2],'o',\
+			color=color_list[i%len(color_list)],linestyle='none',\
+			alpha=0.4,label='band '+str(i))
+#plt.legend()
+#plt.title('Title',fontsize=20)
+plt.xlabel('time index')
+plt.ylabel('frequency')
+plt.show()
+
+'''
 plt.clf()
 plt.plot()
 for i in range(total_band_num):
@@ -195,6 +217,7 @@ plt.xlabel('time index')
 plt.ylabel('frequency')
 plt.show()
 
+'''
 
 plt.clf()
 plt.plot()
