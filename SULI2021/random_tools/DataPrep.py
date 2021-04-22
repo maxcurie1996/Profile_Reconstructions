@@ -108,8 +108,8 @@ class DataPrep:
         return np.array([time, spectrum, freq], dtype=object)
 
     def elm_loc(self, plot=False):
-        pq_dir = '/home/jazimmerman/PycharmProjects/SULI2021/SULI2021/data/B3/parquet/'
-        file = pq_dir + str(self.shot_no) + '.pq'
+        #pq_dir = '/home/jazimmerman/PycharmProjects/SULI2021/SULI2021/data/B3/parquet/'
+        file = self.dir + str(self.shot_no) + '.pq'
 
         raw = pd.read_parquet(file, engine='pyarrow')
         raw_values = raw['amplitude'].values
